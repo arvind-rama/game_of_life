@@ -1,0 +1,188 @@
+function relMouseCoords(event){
+
+    return {x:canvasX, y:canvasY}
+}
+
+/*global define*/
+define([
+	'jquery',
+	'underscore',
+	'backbone'
+], function ($, _, Backbone) {
+'use strict';
+
+
+var AppView = Backbone.View.extend({
+        timer: null,
+        cells: [],
+        rows: 30,
+        cols: 100,
+	el: '.container',
+	events: {
+			'click td' : 'toggleBackground',
+			'click #run' : "run",
+                        'click #stop' : "stop",
+                        'click #random' : "randomGenerate"
+                      //  'click #save' : "save"
+                     //   'click #load' : "load"
+		},
+	initialize: function () {
+	  this.render();
+	},
+	render: function(){
+	 var template = _.template( $("#main_content").html() );
+         this.$el.html( template );
+         this.initializeCells(this.cols,this.rows);
+         this.buildGrid(this.cols,this.rows);
+         
+	},
+	
+	toggleBackground: function(event){ 
+            var array = event.target.id.split("_");
+            var row = parseInt(array[0]);
+            var col = parseInt(array[1]);
+            if (this.cells[row][col]){
+               this.cells[row][col] = 0;
+               $(event.target).css("background-color", "");
+            }else{
+              this.cells[row][col] = 1;
+              $(event.target).css("background-color", "red");
+            }
+             
+	},
+	
+	buildGrid:function(cols, rows) {
+
+	var tableMarkup = "";
+	for (var x = 0; x < rows; x++) {
+		tableMarkup += "<tr>";
+		for (var y = 0; y < cols; y++) {
+		        var rowcol = x+"_"+y;
+			tableMarkup += "<td id="+rowcol+" >&nbsp;</td>";
+		}
+		tableMarkup += "</tr>";	
+	}
+
+	$("#grid").html(tableMarkup);
+        },
+        
+        initializeCells:function(cols,rows) {
+          for (var i=0;i<rows;i++) {
+            this.cells[i] = [];
+          for (var j=0;j<cols;j++) {
+           this.cells[i][j] = 0;
+          }
+         }
+        },
+        
+       
+        
+        gameOn: function(self){
+        
+         function _neighboursCount (x, y) {
+          var found = 0;
+        
+          if (_isFilled(x-1, y-1)) found++;
+          if (_isFilled(x-1, y  )) found++;
+          if (_isFilled(x-1, y+1)) found++;
+          if (_isFilled(x+1, y-1)) found++;
+          if (_isFilled(x+1, y+1)) found++;
+          if (_isFilled(x+1, y  )) found++;
+          if (_isFilled(x,   y-1)) found++;
+          if (_isFilled(x,   y+1)) found++;
+        
+          function _isFilled(x, y) {
+            return self.cells[x] && self.cells[x][y];
+          }
+           return found;
+         }
+       
+
+        var newFormation = [];
+        var alive = 0;
+        this.cells.forEach(function(row, x) {
+         newFormation[x] = [];
+         row.forEach(function(cell, y) {
+            var count = _neighboursCount(x, y);
+            if (cell > 0) {
+                alive = count === 2 || count === 3 ? 1 : 0;
+            } else {
+                alive = count === 3 ? 1 : 0;
+            }
+             newFormation[x][y] = alive;
+            if (alive){
+               $("#"+x+"_"+y).css("background-color", "red");
+            }else {
+               $("#"+x+"_"+y).css("background-color", "");
+             }            
+            }); 
+          });
+          this.cells = newFormation; 
+        },
+       run: function(){
+           this.timer = setInterval((function(self) {    return function() {   
+             self.gameOn(self); 
+          }
+        })(this),100);
+       },
+       stop: function(){
+           clearInterval(this.timer);
+       },
+       randomGenerate: function(){
+          var halfTheCells = Math.floor((this.rows * this.cols)/2)
+          for (var i=0;i<halfTheCells;i++){
+            var randomRow = this.getRandomInt(0,this.rows);
+            var randomCol = this.getRandomInt(0,this.cols);
+            this.cells[randomRow][randomCol] = 1;
+            $("#"+randomRow+"_"+randomCol).css("background-color", "red");
+            
+       }
+       
+       } ,
+       getRandomInt:  function(min, max) {
+  	return Math.floor(Math.random() * (max - min)) + min;
+       } 
+       
+       /*, 
+       
+       savePattern: function () {
+        clearStorage();
+	this.cells.forEach(function(row, x) {
+         row.forEach(function(cell, y) {
+             CellsModel.create({row:x,column:y});
+         });
+        });
+                        
+	CellsModel.each(function (cell) {
+	    cell.save({
+		row: cell.row,
+		column: cell.column
+	      });
+	   });
+       },
+       
+       clearStorage: function() {
+          var c = new Backbone.Collection();
+          c.localStorage = new Backbone.LocalStorage("cells");
+          while ((model=c.shift())) { 
+            model.destroy();
+          }
+       },
+       
+       
+       fetchAllCells: function() {
+         var c = new Backbone.Collection();
+	 c.localStorage = new Backbone.LocalStorage("cells");
+         var f = c.fetch();
+       },
+       
+     });*/
+     
+      
+	
+		
+	return AppView;
+});
+
+
+

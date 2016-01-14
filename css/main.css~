@@ -1,0 +1,21 @@
+@import url("bootstrap.css");
+@import url("bootstrap-responsive.css");
+
+ td {
+   border: 1px solid black;
+   width: 4px;
+   height: 2px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
